@@ -34,6 +34,7 @@ import com.mapbox.navigation.utils.internal.ifNonNull
 import eopeter.flutter_mapbox_navigation.R
 import eopeter.flutter_mapbox_navigation.databinding.NavigationActivityBinding
 import com.google.gson.Gson
+import android.util.Log;
 
 class NavigationActivity : AppCompatActivity() {
 
@@ -51,8 +52,16 @@ class NavigationActivity : AppCompatActivity() {
         binding = NavigationActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        Log.d("PHONG", "hello")
+
         accessToken =
             PluginUtilities.getResourceFromContext(this.applicationContext, "mapbox_access_token")
+
+        if (accessToken != null) {
+            Log.d("PHONG token", accessToken!!)
+        } else {
+            Log.d("PHONG token", "no token")
+        }
 
         val navigationOptions = NavigationOptions.Builder(this.applicationContext)
             .accessToken(accessToken)
