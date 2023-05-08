@@ -52,15 +52,15 @@ class NavigationActivity : AppCompatActivity() {
         binding = NavigationActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        Log.d("PHONG", "hello")
+        Log.i("PHONG", "hello")
 
         accessToken =
             PluginUtilities.getResourceFromContext(this.applicationContext, "mapbox_access_token")
 
         if (accessToken != null) {
-            Log.d("PHONG token", accessToken!!)
+            Log.i("PHONG token", accessToken!!)
         } else {
-            Log.d("PHONG token", "no token")
+            Log.i("PHONG token", "no token")
         }
 
         val navigationOptions = NavigationOptions.Builder(this.applicationContext)
