@@ -53,8 +53,7 @@ android {
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
 
-        val accessToken = System.getenv("MAPBOX_SECRET") ?: "no token"
-        resValue "string", "mapbox_access_token", accessToken
+        resValue "string", "mapbox_access_token", System.getenv("MAPBOX_SECRET")
     }
 
     buildTypes {
