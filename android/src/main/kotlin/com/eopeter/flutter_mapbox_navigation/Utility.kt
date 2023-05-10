@@ -1,5 +1,6 @@
 package com.eopeter.flutter_mapbox_navigation
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Application
 import android.content.Context
@@ -56,27 +57,66 @@ import com.mapbox.navigation.ui.voice.model.SpeechAnnouncement
 import com.mapbox.navigation.ui.voice.model.SpeechError
 import com.mapbox.navigation.ui.voice.model.SpeechValue
 import com.mapbox.navigation.ui.voice.model.SpeechVolume
+import com.mapbox.navigation.core.lifecycle.requireMapboxNavigation
 import eopeter.flutter_mapbox_navigation.databinding.NavigationActivityBinding
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import java.util.*
 import com.google.gson.Gson
+import com.mapbox.navigation.base.options.NavigationOptions
+import com.mapbox.navigation.core.lifecycle.MapboxNavigationApp
+import com.mapbox.navigation.core.lifecycle.MapboxNavigationObserver
+import eopeter.flutter_mapbox_navigation.databinding.ComponentsNavigationActivityBinding
+import android.util.Log
+import com.mapbox.maps.plugin.animation.camera
 
 open class TurnByTurn(
     ctx: Context,
     act: Activity,
-    bind: NavigationActivityBinding,
+    bind: ComponentsNavigationActivityBinding,
     accessToken: String
 ) : MethodChannel.MethodCallHandler, EventChannel.StreamHandler,
     Application.ActivityLifecycleCallbacks {
 
+    companion object {
+        const val TAG = "TurnByTurn"
+    }
+
     open fun initFlutterChannelHandlers() {
         methodChannel?.setMethodCallHandler(this)
         eventChannel?.setStreamHandler(this)
+
+
     }
 
     open fun initNavigation() {
+
+        // initialize Mapbox Navigation
+        mapboxNavigation = if (MapboxNavigationProvider.isCreated()) {
+            MapboxNavigationProvider.retrieve()
+        } else if (simulateRoute) {
+            MapboxNavigationProvider.create(
+                NavigationOptions.Builder(context)
+                    .accessToken(token)
+                    // .locationEngine(replayLocationEngine)
+                    .build()
+            )
+        } else {
+            MapboxNavigationProvider.create(
+                NavigationOptions.Builder(context)
+                    .accessToken(token)
+                    .build()
+            )
+        }
+
+        // initialize Navigation Camera
+        viewportDataSource = MapboxNavigationViewportDataSource(mapboxMap)
+        navigationCamera = NavigationCamera(
+            mapboxMap,
+            binding.mapView.camera,
+            viewportDataSource
+        )
 
         // set the padding values depending on screen orientation and visible view layout
         if (activity.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
@@ -236,7 +276,6 @@ open class TurnByTurn(
                 .voiceUnits(navigationVoiceUnits)
                 .annotations(DirectionsCriteria.ANNOTATION_DISTANCE)
                 .baseUrl("https://api.mapbox.com")
-                .user(UUID.randomUUID().toString())
                 .layersList(listOf(mapboxNavigation.getZLevel(), null))
                 .build(), object : RouterCallback {
                 override fun onRoutesReady(
@@ -323,6 +362,7 @@ open class TurnByTurn(
         }
     }
 
+    @SuppressLint("MissingPermission")
     private fun startNavigation() {
         isNavigationCanceled = false
 
@@ -530,19 +570,40 @@ open class TurnByTurn(
     /**
      * Bindings to the example layout.
      */
-    open val binding: NavigationActivityBinding = bind
+    open val binding: ComponentsNavigationActivityBinding = bind
 
     /**
      * Mapbox Maps entry point obtained from the [MapView].
      * You need to get a new reference to this object whenever the [MapView] is recreated.
      */
-    private lateinit var mapboxMap: MapboxMap
+    private val mapboxMap get() = binding.mapView.getMapboxMap()
 
-    /**
-     * Mapbox Navigation entry point. There should only be one instance of this object for the app.
-     * You can use [MapboxNavigationProvider] to help create and obtain that instance.
-     */
-    private lateinit var mapboxNavigation: MapboxNavigation
+    private lateinit var mapboxNavigation : MapboxNavigation
+
+//    private val mapboxNavigation: MapboxNavigation by requireMapboxNavigation(
+//        onResumedObserver = object : MapboxNavigationObserver {
+//            @SuppressLint("MissingPermission")
+//            override fun onAttached(mapboxNavigation: MapboxNavigation) {
+//                mapboxNavigation.registerRoutesObserver(routesObserver)
+//                mapboxNavigation.registerLocationObserver(locationObserver)
+//                mapboxNavigation.registerRouteProgressObserver(routeProgressObserver)
+//                mapboxNavigation.registerRouteProgressObserver(replayProgressObserver)
+//                mapboxNavigation.registerVoiceInstructionsObserver(voiceInstructionsObserver)
+//                // start the trip session to being receiving location updates in free drive
+//                // and later when a route is set also receiving route progress updates
+//                mapboxNavigation.startTripSession()
+//            }
+//
+//            override fun onDetached(mapboxNavigation: MapboxNavigation) {
+//                mapboxNavigation.unregisterRoutesObserver(routesObserver)
+//                mapboxNavigation.unregisterLocationObserver(locationObserver)
+//                mapboxNavigation.unregisterRouteProgressObserver(routeProgressObserver)
+//                mapboxNavigation.unregisterRouteProgressObserver(replayProgressObserver)
+//                mapboxNavigation.unregisterVoiceInstructionsObserver(voiceInstructionsObserver)
+//            }
+//        },
+//        //onInitialize = this::initNavigation
+//    )
 
     /**
      * Used to execute camera transitions based on the data generated by the [viewportDataSource].
@@ -812,6 +873,7 @@ open class TurnByTurn(
     }
 
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
+        Log.d(TAG, "onActivityCreated")
         TODO("Not yet implemented")
     }
 
@@ -820,6 +882,8 @@ open class TurnByTurn(
     }
 
     override fun onActivityResumed(activity: Activity) {
+        Log.d(TAG, "onActivityResumed")
+
         TODO("Not yet implemented")
     }
 

@@ -11,11 +11,12 @@ import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.platform.PlatformView
 import android.util.Log
+import eopeter.flutter_mapbox_navigation.databinding.ComponentsNavigationActivityBinding
 
 class EmbeddedNavigationMapView(
     context: Context,
     activity: Activity,
-    binding: NavigationActivityBinding,
+    binding: ComponentsNavigationActivityBinding,
     binaryMessenger: BinaryMessenger,
     vId: Int,
     args: Any?,
@@ -24,7 +25,9 @@ class EmbeddedNavigationMapView(
     private val viewId: Int = vId
     private val messenger: BinaryMessenger = binaryMessenger
 
-    val TAG = "EmbeddedNavigationMapView"
+    companion object {
+        const val TAG = "EmbeddedMap"
+    }
 
     override fun initFlutterChannelHandlers() {
         Log.d(TAG, "initFlutterChannelHandlers with viewId: $viewId")

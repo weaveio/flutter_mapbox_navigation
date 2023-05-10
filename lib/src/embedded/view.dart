@@ -61,6 +61,7 @@ class MapBoxNavigationView extends StatelessWidget {
               params.onFocusChanged(true);
             },
           )
+          ..addOnPlatformViewCreatedListener(params.onPlatformViewCreated)
             ..addOnPlatformViewCreatedListener(_onPlatformViewCreated)
             ..create();
         },

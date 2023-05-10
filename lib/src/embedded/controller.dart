@@ -132,14 +132,22 @@ class MapBoxNavigationViewController {
 
   RouteEvent _parseRouteEvent(String jsonString) {
     RouteEvent event;
-    var map = json.decode(jsonString);
-    var progressEvent = RouteProgressEvent.fromJson(map);
-    if (progressEvent.isProgressEvent!) {
+
+    try {
+      var map = json.decode(jsonString);
+      var progressEvent = RouteProgressEvent.fromJson(map);
+      if (progressEvent.isProgressEvent!) {
+        event = RouteEvent(
+            eventType: MapBoxEvent.progress_change, data: progressEvent);
+      } else {
+        event = RouteEvent.fromJson(map);
+      }
+    } catch(e) {
+      print(e);
+
       event = RouteEvent(
-          eventType: MapBoxEvent.progress_change, data: progressEvent);
-    } else {
-      event = RouteEvent.fromJson(map);
-    }
+          eventType: MapBoxEvent.map_ready, data: '{}');    }
+
     return event;
   }
 }
