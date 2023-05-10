@@ -23,6 +23,7 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.platform.PlatformViewRegistry
 import java.util.*
+import android.util.Log
 
 /** FlutterMapboxNavigationPlugin */
 public class FlutterMapboxNavigationPlugin : FlutterPlugin, MethodCallHandler,
@@ -33,7 +34,11 @@ public class FlutterMapboxNavigationPlugin : FlutterPlugin, MethodCallHandler,
     private var currentActivity: Activity? = null
     private lateinit var currentContext: Context
 
+    val TAG = "FlutterMapboxNavigationPlugin"
+
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
+        Log.d(TAG, "attaching flutter_mapbox_navigation")
+
         val messenger = binding.binaryMessenger
         channel = MethodChannel(messenger, "flutter_mapbox_navigation")
         channel.setMethodCallHandler(this)
@@ -44,7 +49,7 @@ public class FlutterMapboxNavigationPlugin : FlutterPlugin, MethodCallHandler,
         platformViewRegistry = binding.platformViewRegistry
         binaryMessenger = messenger;
 
-
+        Log.d(TAG, "attached flutter_mapbox_navigation")
     }
 
     companion object {
@@ -239,11 +244,14 @@ public class FlutterMapboxNavigationPlugin : FlutterPlugin, MethodCallHandler,
     }
 
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
+        Log.d(TAG, "attaching flutter_mapbox_navigation to activity")
 
         currentActivity = binding.activity
         currentContext = binding.activity.applicationContext
 
         if (platformViewRegistry != null && binaryMessenger != null && currentActivity != null) {
+            Log.d(TAG, "registering view factory")
+
             platformViewRegistry?.registerViewFactory(
                 viewId,
                 EmbeddedNavigationViewFactory(binaryMessenger!!, currentActivity!!)

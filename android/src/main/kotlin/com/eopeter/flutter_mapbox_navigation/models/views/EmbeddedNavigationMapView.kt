@@ -10,7 +10,7 @@ import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.platform.PlatformView
-
+import android.util.Log
 
 class EmbeddedNavigationMapView(
     context: Context,
@@ -24,14 +24,23 @@ class EmbeddedNavigationMapView(
     private val viewId: Int = vId
     private val messenger: BinaryMessenger = binaryMessenger
 
+    val TAG = "EmbeddedNavigationMapView"
+
     override fun initFlutterChannelHandlers() {
+        Log.d(TAG, "initFlutterChannelHandlers with viewId: $viewId")
+
         methodChannel = MethodChannel(messenger, "flutter_mapbox_navigation/${viewId}")
         eventChannel = EventChannel(messenger, "flutter_mapbox_navigation/${viewId}/events")
         super.initFlutterChannelHandlers()
     }
+//
+//    override fun onFlutterViewAttached(flutterView: View) {
+//        super.onFlutterViewAttached(flutterView)
+//        initFlutterChannelHandlers()
+//        initNavigation()
+//    }
 
-    override fun onFlutterViewAttached(flutterView: View) {
-        super.onFlutterViewAttached(flutterView)
+    open fun initialize() {
         initFlutterChannelHandlers()
         initNavigation()
     }
