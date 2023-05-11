@@ -38,7 +38,7 @@ class _EmbeddedWidgetState extends State<EmbeddedWidget> {
   }
 
   void initialize() {
-    _options.simulateRoute = true;
+    _options.simulateRoute = false;
     _options.zoom = 15.0;
 
     MapBoxNavigation.instance.registerRouteEventListener(_onEmbeddedRouteEvent);
