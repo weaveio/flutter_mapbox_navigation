@@ -65,7 +65,10 @@ class _EmbeddedWidgetState extends State<EmbeddedWidget> {
               bottom: 50.0,
               child: TextButton(
                 onPressed: _canNavigate ? () => _start() : null,
-                child: const Text('Start navigation'),
+                child: const Text(
+                  'Start navigation',
+                  style: const TextStyle(color: Colors.green),
+                ),
               ),
             ),
           ],
@@ -98,7 +101,7 @@ class _EmbeddedWidgetState extends State<EmbeddedWidget> {
     print("build result: $result");
 
     if (result == true) {
-      _viewController!.startNavigation(options: _options);
+      //_viewController!.startNavigation(options: _options);
     } else {
       print("*****build result failed***************");
     }
@@ -114,10 +117,6 @@ class _EmbeddedWidgetState extends State<EmbeddedWidget> {
     setState(() {
       _canNavigate = true;
     });
-
-    if (_canNavigate) {
-      _start();
-    }
   }
 
   Future<void> _onEmbeddedRouteEvent(RouteEvent e) async {

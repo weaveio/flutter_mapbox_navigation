@@ -27,7 +27,7 @@ class EmbeddedNavigationViewFactory(
         Log.d(TAG, "deflating mapbox NavigationView")
 
         val inflater = LayoutInflater.from(context)
-        val binding = ComponentsNavigationActivityBinding.inflate(inflater)
+        val binding = NavigationActivityBinding.inflate(inflater)
         val accessToken = PluginUtilities.getResourceFromContext(context, "mapbox_access_token")
         val view = EmbeddedNavigationMapView(
             context,

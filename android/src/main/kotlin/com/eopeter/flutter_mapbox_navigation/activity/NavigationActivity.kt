@@ -34,7 +34,6 @@ import com.mapbox.navigation.utils.internal.ifNonNull
 import eopeter.flutter_mapbox_navigation.R
 import eopeter.flutter_mapbox_navigation.databinding.NavigationActivityBinding
 import com.google.gson.Gson
-import android.util.Log;
 
 class NavigationActivity : AppCompatActivity() {
 

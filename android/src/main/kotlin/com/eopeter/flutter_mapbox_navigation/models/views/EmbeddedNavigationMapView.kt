@@ -16,7 +16,7 @@ import eopeter.flutter_mapbox_navigation.databinding.ComponentsNavigationActivit
 class EmbeddedNavigationMapView(
     context: Context,
     activity: Activity,
-    binding: ComponentsNavigationActivityBinding,
+    binding: NavigationActivityBinding,
     binaryMessenger: BinaryMessenger,
     vId: Int,
     args: Any?,
