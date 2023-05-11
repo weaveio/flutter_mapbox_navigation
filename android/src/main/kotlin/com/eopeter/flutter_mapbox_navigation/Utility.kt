@@ -124,10 +124,10 @@ open class TurnByTurn(ctx: Context, act: Activity, bind: NavigationActivityBindi
                     routes: List<NavigationRoute>,
                     routerOrigin: RouterOrigin
                 ) {
+                    currentRoutes = routes;
                     PluginUtilities.sendEvent(MapBoxEvents.ROUTE_BUILT, Gson().toJson(routes))
                     binding.navigationView.api.routeReplayEnabled(true)
                     binding.navigationView.api.startRoutePreview(routes)
-                    binding.navigationView.api.startActiveGuidance(routes)
                 }
 
                 override fun onFailure(
@@ -145,7 +145,7 @@ open class TurnByTurn(ctx: Context, act: Activity, bind: NavigationActivityBindi
     }
 
     private fun clearRoute(methodCall: MethodCall, result: MethodChannel.Result) {
-
+        currentRoutes = null;
     }
 
     private fun startNavigation(methodCall: MethodCall, result: MethodChannel.Result) {
@@ -156,7 +156,7 @@ open class TurnByTurn(ctx: Context, act: Activity, bind: NavigationActivityBindi
 
         startNavigation()
 
-        if (currentRoute != null) {
+        if (currentRoutes != null) {
             result.success(true)
         } else {
             result.success(false)
@@ -167,7 +167,7 @@ open class TurnByTurn(ctx: Context, act: Activity, bind: NavigationActivityBindi
 
         finishNavigation()
 
-        if (currentRoute != null) {
+        if (currentRoutes != null) {
             result.success(true)
         } else {
             result.success(false)
@@ -176,7 +176,7 @@ open class TurnByTurn(ctx: Context, act: Activity, bind: NavigationActivityBindi
 
     @SuppressLint("MissingPermission")
     private fun startNavigation() {
-        //todo
+        binding.navigationView.api.startActiveGuidance(currentRoutes!!);
     }
 
     private fun finishNavigation(isOffRouted: Boolean = false) {
@@ -327,7 +327,7 @@ open class TurnByTurn(ctx: Context, act: Activity, bind: NavigationActivityBindi
     var originPoint: Point? = null
     var destinationPoint: Point? = null
 
-    private var currentRoute: DirectionsRoute? = null
+    private var currentRoutes:  List<NavigationRoute>? = null
     private var isDisposed = false
     private var isRefreshing = false
     private var isBuildingRoute = false

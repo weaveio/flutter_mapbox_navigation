@@ -27,8 +27,8 @@ class _EmbeddedWidgetState extends State<EmbeddedWidget> {
       longitude: -121.8735955773303,
       isSilent: false);
 
+  bool _canBuildRoute = false;
   bool _canNavigate = false;
-  bool _showView = false;
 
   @override
   void initState() {
@@ -63,12 +63,24 @@ class _EmbeddedWidgetState extends State<EmbeddedWidget> {
             Positioned(
               right: 50.0,
               bottom: 50.0,
-              child: TextButton(
-                onPressed: _canNavigate ? () => _start() : null,
-                child: const Text(
-                  'Start navigation',
-                  style: const TextStyle(color: Colors.green),
-                ),
+              child: Row(
+                children: [
+                  ElevatedButton(
+                    onPressed: _canBuildRoute ? () => _buildRoute() : null,
+                    child: const Text(
+                      'Build routes',
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 10,
+                  ),
+                  ElevatedButton(
+                    onPressed: _canNavigate ? () => _navigate() : null,
+                    child: const Text(
+                      'Start navigation',
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
@@ -85,7 +97,7 @@ class _EmbeddedWidgetState extends State<EmbeddedWidget> {
     );
   }
 
-  Future<void> _start() async {
+  Future<void> _buildRoute() async {
     // setState(() {
     //   _canNavigate = true;
     // });
@@ -100,11 +112,13 @@ class _EmbeddedWidgetState extends State<EmbeddedWidget> {
 
     print("build result: $result");
 
-    if (result == true) {
-      //_viewController!.startNavigation(options: _options);
-    } else {
-      print("*****build result failed***************");
-    }
+    setState(() {
+      _canNavigate = result == true;
+    });
+  }
+
+  void _navigate() {
+    _viewController!.startNavigation(options: _options);
   }
 
   Future<void> _initController(
@@ -115,7 +129,7 @@ class _EmbeddedWidgetState extends State<EmbeddedWidget> {
     print("control init!!!");
 
     setState(() {
-      _canNavigate = true;
+      _canBuildRoute = true;
     });
   }
 
