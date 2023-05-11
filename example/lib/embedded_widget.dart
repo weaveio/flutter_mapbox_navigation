@@ -56,30 +56,46 @@ class _EmbeddedWidgetState extends State<EmbeddedWidget> {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        backgroundColor: Colors.black26,
         body: Stack(
           children: [
             _embeddedView(),
             Positioned(
-              right: 50.0,
+              right: 0.0,
               bottom: 50.0,
               child: Row(
                 children: [
                   ElevatedButton(
                     onPressed: _canBuildRoute ? () => _buildRoute() : null,
                     child: const Text(
-                      'Build routes',
+                      'Build',
                     ),
                   ),
-                  const SizedBox(
-                    width: 10,
-                  ),
+                  _spaces(),
                   ElevatedButton(
                     onPressed: _canNavigate ? () => _navigate() : null,
                     child: const Text(
-                      'Start navigation',
+                      'Start',
                     ),
                   ),
+                  _spaces(),
+                  ElevatedButton(
+                    onPressed: () => _end(),
+                    child: const Text(
+                      'End',
+                    ),
+                  ),
+                  // _spaces(),
+                  // ElevatedButton(
+                  //   onPressed: () => {
+                  //     setState(() {
+                  //       _showView = false;
+                  //     })
+                  //   },
+                  //   child: const Text(
+                  //     'Destroy',
+                  //   ),
+                  // ),
+                  _spaces()
                 ],
               ),
             ),
@@ -87,6 +103,10 @@ class _EmbeddedWidgetState extends State<EmbeddedWidget> {
         ),
       ),
     );
+  }
+
+  Widget _spaces() {
+    return const SizedBox(width: 10);
   }
 
   Widget _embeddedView() {
@@ -98,9 +118,11 @@ class _EmbeddedWidgetState extends State<EmbeddedWidget> {
   }
 
   Future<void> _buildRoute() async {
-    // setState(() {
-    //   _canNavigate = true;
-    // });
+    // if (_showView == false) {
+    //   setState(() {
+    //     _showView = true;
+    //   });
+    // }
     print("buiding route");
     final result = await _viewController?.buildRoute(
       wayPoints: [
@@ -119,6 +141,14 @@ class _EmbeddedWidgetState extends State<EmbeddedWidget> {
 
   void _navigate() {
     _viewController!.startNavigation(options: _options);
+  }
+
+  Future<void> _end() async {
+    print("ending navivation!!!!");
+
+    await _viewController?.finishNavigation();
+
+    print("navigation ended!!!!!!!");
   }
 
   Future<void> _initController(

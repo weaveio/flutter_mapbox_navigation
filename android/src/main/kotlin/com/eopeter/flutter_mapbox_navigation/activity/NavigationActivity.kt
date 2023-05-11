@@ -159,7 +159,7 @@ class NavigationActivity : AppCompatActivity() {
                     routes: List<NavigationRoute>,
                     routerOrigin: RouterOrigin
                 ) {
-                    sendEvent(MapBoxEvents.ROUTE_BUILT, Gson().toJson(routes))
+                    sendEvent(MapBoxEvents.ROUTE_BUILT, Gson().toJson(routes.map { it.directionsRoute }))
                     if (routes.isEmpty()) {
                         sendEvent(MapBoxEvents.ROUTE_BUILD_NO_ROUTES_FOUND)
                         return

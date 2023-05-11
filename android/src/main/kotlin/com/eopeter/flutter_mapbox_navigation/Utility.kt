@@ -14,7 +14,6 @@ import com.eopeter.flutter_mapbox_navigation.models.WaypointSet
 import com.eopeter.flutter_mapbox_navigation.utilities.PluginUtilities
 import com.google.gson.Gson
 import com.mapbox.api.directions.v5.DirectionsCriteria
-import com.mapbox.api.directions.v5.models.DirectionsRoute
 import com.mapbox.api.directions.v5.models.RouteOptions
 import com.mapbox.geojson.Point
 import com.mapbox.maps.*
@@ -34,6 +33,7 @@ import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import java.util.*
+import android.util.Log
 
 open class TurnByTurn(ctx: Context, act: Activity, bind: NavigationActivityBinding, accessToken: String):  MethodChannel.MethodCallHandler, EventChannel.StreamHandler,
     Application.ActivityLifecycleCallbacks {
@@ -87,9 +87,7 @@ open class TurnByTurn(ctx: Context, act: Activity, bind: NavigationActivityBindi
     }
 
     private fun buildRoute(methodCall: MethodCall, result: MethodChannel.Result) {
-
         isNavigationCanceled = false
-        isNavigationInProgress = false
 
         val arguments = methodCall.arguments as? Map<*, *>
         if(arguments != null)
@@ -124,8 +122,9 @@ open class TurnByTurn(ctx: Context, act: Activity, bind: NavigationActivityBindi
                     routes: List<NavigationRoute>,
                     routerOrigin: RouterOrigin
                 ) {
-                    currentRoutes = routes;
-                    PluginUtilities.sendEvent(MapBoxEvents.ROUTE_BUILT, Gson().toJson(routes))
+                    currentRoutes = routes
+                    val directionsRoutes = routes.map { it.directionsRoute }
+                    PluginUtilities.sendEvent(MapBoxEvents.ROUTE_BUILT, Gson().toJson(directionsRoutes))
                     binding.navigationView.api.routeReplayEnabled(true)
                     binding.navigationView.api.startRoutePreview(routes)
                 }
@@ -180,7 +179,8 @@ open class TurnByTurn(ctx: Context, act: Activity, bind: NavigationActivityBindi
     }
 
     private fun finishNavigation(isOffRouted: Boolean = false) {
-        //todo
+        MapboxNavigationApp.current()!!.stopTripSession()
+        isNavigationCanceled = true
     }
 
     private fun setOptions(arguments: Map<*, *>)
@@ -269,10 +269,7 @@ open class TurnByTurn(ctx: Context, act: Activity, bind: NavigationActivityBindi
         // unregister event listeners to prevent leaks or unnecessary resource consumption
         MapboxNavigationApp.current()?.unregisterLocationObserver(locationObserver)
         MapboxNavigationApp.current()?.unregisterRouteProgressObserver(routeProgressObserver)
-        MapboxNavigationApp.current()?.unregisterArrivalObserver(arrivalObserver)    }
-
-    fun onDestroy() {
-        //todo
+        MapboxNavigationApp.current()?.unregisterArrivalObserver(arrivalObserver)
     }
 
     //Flutter stream listener delegate methods
@@ -295,7 +292,6 @@ open class TurnByTurn(ctx: Context, act: Activity, bind: NavigationActivityBindi
      * Helper class that keeps added waypoints and transforms them to the [RouteOptions] params.
      */
     private val addedWaypoints = WaypointSet()
-
 
     //Config
     var initialLatitude: Double? = null
@@ -322,16 +318,9 @@ open class TurnByTurn(ctx: Context, act: Activity, bind: NavigationActivityBindi
     var bannerInstructionsEnabled = true
     var longPressDestinationEnabled = true
     var animateBuildRoute = true
-    var isOptimized = false
-
-    var originPoint: Point? = null
-    var destinationPoint: Point? = null
+    private var isOptimized = false
 
     private var currentRoutes:  List<NavigationRoute>? = null
-    private var isDisposed = false
-    private var isRefreshing = false
-    private var isBuildingRoute = false
-    private var isNavigationInProgress = false
     private var isNavigationCanceled = false
 
     /**
@@ -390,30 +379,30 @@ open class TurnByTurn(ctx: Context, act: Activity, bind: NavigationActivityBindi
     }
 
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
-        TODO("Not yet implemented")
+        Log.d("Embedded", "onActivityCreated not implemented")
     }
 
     override fun onActivityStarted(activity: Activity) {
-        TODO("Not yet implemented")
+        Log.d("Embedded", "onActivityStarted not implemented")
     }
 
     override fun onActivityResumed(activity: Activity) {
-        TODO("Not yet implemented")
+        Log.d("Embedded", "onActivityResumed not implemented")
     }
 
     override fun onActivityPaused(activity: Activity) {
-        TODO("Not yet implemented")
+        Log.d("Embedded", "onActivityPaused not implemented")
     }
 
     override fun onActivityStopped(activity: Activity) {
-        TODO("Not yet implemented")
+        Log.d("Embedded", "onActivityStopped not implemented")
     }
 
     override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {
-        TODO("Not yet implemented")
+        Log.d("Embedded", "onActivitySaveInstanceState not implemented")
     }
 
     override fun onActivityDestroyed(activity: Activity) {
-        TODO("Not yet implemented")
+        Log.d("Embedded", "onActivityDestroyed not implemented")
     }
 }

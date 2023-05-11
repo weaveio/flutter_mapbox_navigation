@@ -36,12 +36,11 @@ class EmbeddedNavigationMapView(
         eventChannel = EventChannel(messenger, "flutter_mapbox_navigation/${viewId}/events")
         super.initFlutterChannelHandlers()
     }
-//
-//    override fun onFlutterViewAttached(flutterView: View) {
-//        super.onFlutterViewAttached(flutterView)
-//        initFlutterChannelHandlers()
-//        initNavigation()
-//    }
+
+    override fun onFlutterViewAttached(flutterView: View) {
+        super.onFlutterViewAttached(flutterView)
+        Log.d(TAG, "onFlutterViewAttached")
+    }
 
     open fun initialize() {
         initFlutterChannelHandlers()
@@ -55,7 +54,5 @@ class EmbeddedNavigationMapView(
 
     override fun dispose() {
         unregisterObservers();
-        onDestroy();
     }
-
 }
