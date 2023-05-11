@@ -125,7 +125,7 @@ open class TurnByTurn(ctx: Context, act: Activity, bind: NavigationActivityBindi
                     currentRoutes = routes
                     val directionsRoutes = routes.map { it.directionsRoute }
                     PluginUtilities.sendEvent(MapBoxEvents.ROUTE_BUILT, Gson().toJson(directionsRoutes))
-                    binding.navigationView.api.routeReplayEnabled(true)
+                    binding.navigationView.api.routeReplayEnabled(simulateRoute)
                     binding.navigationView.api.startRoutePreview(routes)
                 }
 
