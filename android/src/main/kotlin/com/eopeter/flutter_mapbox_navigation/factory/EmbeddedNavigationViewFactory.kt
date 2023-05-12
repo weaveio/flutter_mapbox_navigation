@@ -21,11 +21,7 @@ class EmbeddedNavigationViewFactory(
     private val messenger: BinaryMessenger,
     private val activity: Activity
 ) : PlatformViewFactory(StandardMessageCodec.INSTANCE) {
-    val TAG = "EmbeddedNavigationViewFactory"
-
     override fun create(context: Context, viewId: Int, args: Any?): PlatformView {
-        Log.d(TAG, "deflating mapbox NavigationView")
-
         val inflater = LayoutInflater.from(context)
         val binding = NavigationActivityBinding.inflate(inflater)
         val accessToken = PluginUtilities.getResourceFromContext(context, "mapbox_access_token")
@@ -43,7 +39,6 @@ class EmbeddedNavigationViewFactory(
 
         activity.setTheme(R.style.Theme_AppCompat_NoActionBar)
 
-        Log.d(TAG, "deflated mapbox NavigationView")
         return view
     }
 }
