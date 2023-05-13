@@ -24,7 +24,18 @@ class EmbeddedNavigationViewFactory(
     override fun create(context: Context, viewId: Int, args: Any?): PlatformView {
         val inflater = LayoutInflater.from(context)
         val binding = NavigationActivityBinding.inflate(inflater)
-        val accessToken = PluginUtilities.getResourceFromContext(context, "mapbox_access_token")
+        var accessToken: String? = null
+
+        //use access token from args when available (this would allow token to be set in the backend)
+        if (args is Map<*,*>) {
+            accessToken = args["accessToken"] as String?
+        }
+
+        //fallback to resource string/mapbox_access_token if not available
+        if (accessToken?.isEmpty() != false) {
+            accessToken = PluginUtilities.getResourceFromContext(context, "mapbox_access_token")
+        }
+
         val view = EmbeddedNavigationMapView(
             context,
             activity,

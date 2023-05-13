@@ -77,6 +77,8 @@ class MapBoxOptions {
   /// No destination is required when set to true.
   bool? enableFreeDriveMode;
 
+  String? accessToken;
+
   MapBoxOptions(
       {this.initialLatitude,
       this.initialLongitude,
@@ -98,7 +100,8 @@ class MapBoxOptions {
       this.mapStyleUrlNight,
       this.enableFreeDriveMode,
       this.padding,
-      this.animateBuildRoute});
+      this.animateBuildRoute,
+      this.accessToken});
 
   Map<String, dynamic> toMap() {
     final Map<String, dynamic> optionsMap = new Map<String, dynamic>();
@@ -113,6 +116,7 @@ class MapBoxOptions {
     addIfNonNull("language", language);
     addIfNonNull("animateBuildRoute", animateBuildRoute);
     addIfNonNull("longPressDestinationEnabled", longPressDestinationEnabled);
+    addIfNonNull('accessToken', accessToken);
 
     if (zoom != null) optionsMap['zoom'] = zoom;
     if (bearing != null) optionsMap['bearing'] = bearing;
