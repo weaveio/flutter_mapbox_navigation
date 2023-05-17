@@ -65,7 +65,7 @@ class _EmbeddedWidgetState extends State<EmbeddedWidget> {
               child: Row(
                 children: [
                   ElevatedButton(
-                    onPressed: _canBuildRoute ? () => _buildRoute() : null,
+                    onPressed: ()=> _buildRoute(),
                     child: const Text(
                       'Build',
                     ),
@@ -170,6 +170,7 @@ class _EmbeddedWidgetState extends State<EmbeddedWidget> {
       case MapBoxEvent.progress_change:
       case MapBoxEvent.route_building:
       case MapBoxEvent.route_built:
+        print(e.data);
         if (e.data is String && (e.data as String).isNotEmpty) {
           final m = jsonDecode(e.data);
 
