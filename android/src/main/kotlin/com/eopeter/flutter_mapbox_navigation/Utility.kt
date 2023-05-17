@@ -124,7 +124,9 @@ open class TurnByTurn(ctx: Context, act: Activity, bind: NavigationActivityBindi
                     routerOrigin: RouterOrigin
                 ) {
                     currentRoutes = routes
-                    PluginUtilities.sendEvent(MapBoxEvents.ROUTE_BUILT, Gson().toJson(routes.map { it.directionsRoute }))
+                    val json = Gson().toJson(routes.map { it.directionsRoute })
+                    Log.d("route_built internal", json)
+                    PluginUtilities.sendEvent(MapBoxEvents.ROUTE_BUILT, json)
                     binding.navigationView.api.routeReplayEnabled(simulateRoute)
                     binding.navigationView.api.startRoutePreview(routes)
                 }
