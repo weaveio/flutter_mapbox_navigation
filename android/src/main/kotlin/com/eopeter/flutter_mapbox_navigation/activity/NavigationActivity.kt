@@ -213,7 +213,7 @@ class NavigationActivity : AppCompatActivity() {
                     routes: List<NavigationRoute>,
                     routerOrigin: RouterOrigin
                 ) {
-                    sendEvent(MapBoxEvents.ROUTE_BUILT, Gson().toJson(routes))
+                    sendEvent(MapBoxEvents.ROUTE_BUILT, Gson().toJson(routes.map { it.directionsRoute }))
                     binding.navigationView.api.routeReplayEnabled(true)
                     binding.navigationView.api.startActiveGuidance(routes)
                 }
