@@ -46,6 +46,14 @@ class PluginUtilities {
             FlutterMapboxNavigationPlugin.eventSink?.success(jsonString)
         }
 
+        fun sendRouteBuiltEvent(routes: List<DirectionsRoute>) {
+//            val ls = mutableListOf<String>()
+//
+//            for (route in routes) {
+//                ls.add("{")
+//            }
+        }
+
         fun sendEvent(event: MapBoxEvents, data: String = "") {
             val jsonString =
                 if (MapBoxEvents.MILESTONE_EVENT == event || event == MapBoxEvents.USER_OFF_ROUTE || event == MapBoxEvents.ROUTE_BUILT) "{" +
