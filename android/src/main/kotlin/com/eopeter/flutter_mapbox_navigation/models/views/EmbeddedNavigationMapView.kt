@@ -30,8 +30,6 @@ class EmbeddedNavigationMapView(
     }
 
     override fun initFlutterChannelHandlers() {
-        Log.d(TAG, "initFlutterChannelHandlers with viewId: $viewId")
-
         methodChannel = MethodChannel(messenger, "flutter_mapbox_navigation/${viewId}")
         eventChannel = EventChannel(messenger, "flutter_mapbox_navigation/${viewId}/events")
         super.initFlutterChannelHandlers()
@@ -39,7 +37,6 @@ class EmbeddedNavigationMapView(
 
     override fun onFlutterViewAttached(flutterView: View) {
         super.onFlutterViewAttached(flutterView)
-        Log.d(TAG, "onFlutterViewAttached")
     }
 
     open fun initialize() {
