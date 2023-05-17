@@ -38,20 +38,12 @@ class PluginUtilities {
         }
 
         fun sendEvent(event: MapBoxRouteProgressEvent) {
-            val dataString = Gson().toJson(event)
+            val dataString = event.toJson()
             val jsonString = "{" +
                     "  \"eventType\": \"${MapBoxEvents.PROGRESS_CHANGE.value}\"," +
                     "  \"data\": $dataString" +
                     "}"
             FlutterMapboxNavigationPlugin.eventSink?.success(jsonString)
-        }
-
-        fun sendRouteBuiltEvent(routes: List<DirectionsRoute>) {
-//            val ls = mutableListOf<String>()
-//
-//            for (route in routes) {
-//                ls.add("{")
-//            }
         }
 
         fun sendEvent(event: MapBoxEvents, data: String = "") {
