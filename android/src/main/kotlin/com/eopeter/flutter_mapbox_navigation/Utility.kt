@@ -190,6 +190,7 @@ open class TurnByTurn(ctx: Context, act: Activity, bind: NavigationActivityBindi
         //hide progress panel, lets the app that used it implemented it
         binding.navigationView.customizeViewOptions {
             showTripProgress = false
+            showActionButtons = false
             infoPanelForcedState = BottomSheetBehavior.STATE_HIDDEN
         }
 
