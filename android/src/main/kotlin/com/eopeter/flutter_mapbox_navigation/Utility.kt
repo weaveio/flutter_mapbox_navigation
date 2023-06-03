@@ -126,6 +126,7 @@ open class TurnByTurn(ctx: Context, act: Activity, bind: NavigationActivityBindi
                     currentRoutes = routes
                     val json = Gson().toJson(routes.map { it.directionsRoute.toJson() })
                     PluginUtilities.sendEvent(MapBoxEvents.ROUTE_BUILT, json)
+
                     binding.navigationView.api.routeReplayEnabled(simulateRoute)
                     binding.navigationView.api.startRoutePreview(routes)
                 }
@@ -186,6 +187,14 @@ open class TurnByTurn(ctx: Context, act: Activity, bind: NavigationActivityBindi
 
     private fun setOptions(arguments: Map<*, *>)
     {
+        //hide progress panel, lets the app that used it implemented it
+        binding.navigationView.customizeViewOptions {
+            showTripProgress = false
+            showCompassActionButton = false
+            showRecenterActionButton = false
+            infoPanelForcedState = BottomSheetBehavior.STATE_HIDDEN
+        }
+
         val navMode = arguments["mode"] as? String
         if(navMode != null)
         {
