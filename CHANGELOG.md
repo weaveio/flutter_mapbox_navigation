@@ -1,3 +1,49 @@
+## 0.2.2
+* Fix issue with voice units in Android
+* Fix BannerText, VoiceInstruction and Off Route Events
+
+## 0.2.1
+* Fix issue with setting the language in Android
+
+## 0.2.0
+* Update MapBox Android Version
+* Resolve issue where Navigation Does Not Dismiss Activity on Cancel
+
+## 0.1.9
+* Android Day/Night Style Default Values [PR 272](https://github.com/eopeter/flutter_mapbox_navigation/pull/272)
+* Fix iOS Embedded Clear Route Issue [PR 284](https://github.com/eopeter/flutter_mapbox_navigation/pull/284)
+* Fix Route Events Not Sent [PR 288](https://github.com/eopeter/flutter_mapbox_navigation/pull/288)
+* Set WayPoint IsSilent to default false
+
+## 0.1.8
+* Fix Android NavigationMode [261](https://github.com/eopeter/flutter_mapbox_navigation/pull/261)
+
+## 0.1.7
+* Fix Android mainClass entry Error
+
+## 0.1.6
+* Embedded Clear Route Bug Fix
+
+## 0.1.5
+* Bug Fixes [248](https://github.com/eopeter/flutter_mapbox_navigation/pull/248) and [250](https://github.com/eopeter/flutter_mapbox_navigation/pull/250)
+
+## 0.1.4
+* Android Send Cancel Event [235](https://github.com/eopeter/flutter_mapbox_navigation/pull/235)
+* iOS Receive Feedback Sent to Mapbox on Dart Side; Ability to Turn On/Off Show Feedback [235](https://github.com/eopeter/flutter_mapbox_navigation/pull/235)
+* Add Free Drive Mode [240](https://github.com/eopeter/flutter_mapbox_navigation/pull/240)
+
+## 0.1.3
+* Android Send Cancel Event [236](https://github.com/eopeter/flutter_mapbox_navigation/pull/236)
+
+## 0.1.2
+* Android embedded view now working [#225](https://github.com/eopeter/flutter_mapbox_navigation/pull/225)
+* Fixes Progress Changed and Route Build Event Data serialization on Android [#227](https://github.com/eopeter/flutter_mapbox_navigation/pull/227)
+
+## 0.1.1
+* Android: move LeakCanary as DebugImplementation [#221](https://github.com/eopeter/flutter_mapbox_navigation/pull/221)
+* Emit Route Data Upon Route Build [#218](https://github.com/eopeter/flutter_mapbox_navigation/pull/218)
+* Implement Silent Waypoints [#214](https://github.com/eopeter/flutter_mapbox_navigation/pull/214)
+
 ## 0.1.0
 * breaking changes
 * Android Gradle Upgrade

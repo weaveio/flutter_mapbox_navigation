@@ -1,5 +1,6 @@
+// ignore_for_file: constant_identifier_names, public_member_api_docs
+
 /// All possible events that could occur in the course of navigation
-///
 enum MapBoxEvent {
   map_ready,
   route_building,
@@ -18,5 +19,6 @@ enum MapBoxEvent {
   banner_instruction,
   on_arrival,
   failed_to_reroute,
-  reroute_along
+  reroute_along,
+  on_map_tap
 }

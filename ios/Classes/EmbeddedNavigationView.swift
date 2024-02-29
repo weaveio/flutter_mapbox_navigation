@@ -25,6 +25,9 @@ public class FlutterMapboxNavigationView : NavigationFactory, FlutterPlatformVie
     var _mapInitialized = false;
     var locationManager = CLLocationManager()
 
+    private let passiveLocationManager = PassiveLocationManager()
+    private lazy var passiveLocationProvider = PassiveLocationProvider(locationManager: passiveLocationManager)
+
     init(messenger: FlutterBinaryMessenger, frame: CGRect, viewId: Int64, args: Any?)
     {
         self.frame = frame
@@ -69,6 +72,10 @@ public class FlutterMapboxNavigationView : NavigationFactory, FlutterPlatformVie
             {
                 strongSelf.endNavigation(result: result)
             }
+            else if(call.method == "startFreeDrive")
+            {
+                strongSelf.startEmbeddedFreeDrive(arguments: arguments, result: result)
+            }
             else if(call.method == "startNavigation")
             {
                 strongSelf.startEmbeddedNavigation(arguments: arguments, result: result)
@@ -97,6 +104,7 @@ public class FlutterMapboxNavigationView : NavigationFactory, FlutterPlatformVie
         return navigationMapView
     }
 
+    
     private func setupMapView()
     {
         navigationMapView = NavigationMapView(frame: frame)
@@ -104,19 +112,9 @@ public class FlutterMapboxNavigationView : NavigationFactory, FlutterPlatformVie
 
         if(self.arguments != nil)
         {
-            _language = arguments?["language"] as? String ?? _language
-            _voiceUnits = arguments?["units"] as? String ?? _voiceUnits
-            _simulateRoute = arguments?["simulateRoute"] as? Bool ?? _simulateRoute
-            _isOptimized = arguments?["isOptimized"] as? Bool ?? _isOptimized
-            _allowsUTurnAtWayPoints = arguments?["allowsUTurnAtWayPoints"] as? Bool
-            _navigationMode = arguments?["mode"] as? String ?? "drivingWithTraffic"
-            _mapStyleUrlDay = arguments?["mapStyleUrlDay"] as? String
-            _zoom = arguments?["zoom"] as? Double ?? _zoom
-            _bearing = arguments?["bearing"] as? Double ?? _bearing
-            _tilt = arguments?["tilt"] as? Double ?? _tilt
-            _animateBuildRoute = arguments?["animateBuildRoute"] as? Bool ?? _animateBuildRoute
-            _longPressDestinationEnabled = arguments?["longPressDestinationEnabled"] as? Bool ?? _longPressDestinationEnabled
-
+           
+            parseFlutterArguments(arguments: arguments)
+            
             if(_mapStyleUrlDay != nil)
             {
                 navigationMapView.mapView.mapboxMap.style.uri = StyleURI.init(url: URL(string: _mapStyleUrlDay!)!)
@@ -147,7 +145,13 @@ public class FlutterMapboxNavigationView : NavigationFactory, FlutterPlatformVie
             gesture.delegate = self
             navigationMapView?.addGestureRecognizer(gesture)
         }
-
+        
+        if _enableOnMapTapCallback {
+            let onTapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTap(_:)))
+            onTapGesture.numberOfTapsRequired = 1
+            onTapGesture.delegate = self
+            navigationMapView?.addGestureRecognizer(onTapGesture)
+        }
     }
 
     func clearRoute(arguments: NSDictionary?, result: @escaping FlutterResult)
@@ -156,16 +160,17 @@ public class FlutterMapboxNavigationView : NavigationFactory, FlutterPlatformVie
         {
             return
         }
-
-        setupMapView()
-        self.view().setNeedsDisplay()
-
+        if (navigationService != nil) {
+            navigationService.stop()
+        }
+        navigationMapView.removeRoutes()
         routeResponse = nil
         sendEvent(eventType: MapBoxEventType.navigation_cancelled)
     }
 
     func buildRoute(arguments: NSDictionary?, flutterResult: @escaping FlutterResult)
     {
+        _wayPoints.removeAll()
         isEmbeddedNavigation = true
         sendEvent(eventType: MapBoxEventType.route_building)
 
@@ -179,8 +184,9 @@ public class FlutterMapboxNavigationView : NavigationFactory, FlutterPlatformVie
             guard let oName = point["Name"] as? String else {return}
             guard let oLatitude = point["Latitude"] as? Double else {return}
             guard let oLongitude = point["Longitude"] as? Double else {return}
+            let oIsSilent = point["IsSilent"] as? Bool ?? false
             let order = point["Order"] as? Int
-            let location = Location(name: oName, latitude: oLatitude, longitude: oLongitude, order: order)
+            let location = Location(name: oName, latitude: oLatitude, longitude: oLongitude, order: order,isSilent: oIsSilent)
             locations.append(location)
         }
 
@@ -195,21 +201,16 @@ public class FlutterMapboxNavigationView : NavigationFactory, FlutterPlatformVie
         {
             let location = Waypoint(coordinate: CLLocationCoordinate2D(latitude: loc.latitude!, longitude: loc.longitude!),
                                     coordinateAccuracy: -1, name: loc.name)
+            location.separatesLegs = !loc.isSilent
             _wayPoints.append(location)
         }
 
-        _language = arguments?["language"] as? String ?? _language
-        _voiceUnits = arguments?["units"] as? String ?? _voiceUnits
-        _simulateRoute = arguments?["simulateRoute"] as? Bool ?? _simulateRoute
-        _isOptimized = arguments?["isOptimized"] as? Bool ?? _isOptimized
-        _allowsUTurnAtWayPoints = arguments?["allowsUTurnAtWayPoints"] as? Bool
-        _navigationMode = arguments?["mode"] as? String ?? "drivingWithTraffic"
+        parseFlutterArguments(arguments: arguments)
+        
         if(_wayPoints.count > 3 && arguments?["mode"] == nil)
         {
             _navigationMode = "driving"
         }
-        _mapStyleUrlDay = arguments?["mapStyleUrlDay"] as? String
-        _mapStyleUrlNight = arguments?["mapStyleUrlNight"] as? String
 
         var mode: ProfileIdentifier = .automobileAvoidingTraffic
 
@@ -235,6 +236,7 @@ public class FlutterMapboxNavigationView : NavigationFactory, FlutterPlatformVie
 
         routeOptions.distanceMeasurementSystem = _voiceUnits == "imperial" ? .imperial : .metric
         routeOptions.locale = Locale(identifier: _language)
+        routeOptions.includesAlternativeRoutes = _alternatives
         self.routeOptions = routeOptions
 
         // Generate the route object and draw it on the map
@@ -252,6 +254,21 @@ public class FlutterMapboxNavigationView : NavigationFactory, FlutterPlatformVie
         }
     }
 
+    func startEmbeddedFreeDrive(arguments: NSDictionary?, result: @escaping FlutterResult) {
+
+        let locationProvider: LocationProvider = passiveLocationProvider
+        navigationMapView.mapView.location.overrideLocationProvider(with: locationProvider)
+        passiveLocationProvider.startUpdatingLocation()
+
+        navigationMapView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        navigationMapView.userLocationStyle = .puck2D()
+
+        let navigationViewportDataSource = NavigationViewportDataSource(navigationMapView.mapView)
+        navigationViewportDataSource.options.followingCameraOptions.zoomUpdatesAllowed = false
+        navigationViewportDataSource.followingMobileCamera.zoom = _zoom
+        navigationMapView.navigationCamera.viewportDataSource = navigationViewportDataSource
+        result(true)
+    }
 
     func startEmbeddedNavigation(arguments: NSDictionary?, result: @escaping FlutterResult) {
         guard let response = self.routeResponse else { return }
@@ -283,6 +300,9 @@ public class FlutterMapboxNavigationView : NavigationFactory, FlutterPlatformVie
 
         _navigationViewController = NavigationViewController(for: response, routeIndex: selectedRouteIndex, routeOptions: routeOptions!, navigationOptions: navigationOptions)
         _navigationViewController!.delegate = self
+
+        _navigationViewController!.showsReportFeedback = _showReportFeedbackButton
+        _navigationViewController!.showsEndOfRouteFeedback = _showEndOfRouteFeedback
 
         let flutterViewController = UIApplication.shared.delegate?.window?!.rootViewController as! FlutterViewController
         flutterViewController.addChild(_navigationViewController!)
@@ -383,7 +403,11 @@ extension FlutterMapboxNavigationView : NavigationMapViewDelegate {
 //    }
 
     public func navigationMapView(_ mapView: NavigationMapView, didSelect route: Route) {
-        self.selectedRouteIndex = self.routeResponse!.routes?.firstIndex(of: route) ?? 0
+        self.selectedRouteIndex = self.routeResponse?.routes?.firstIndex(of: route) ?? 0
+        let sorted = (self.routeResponse?.routes ?? []).sorted(by: { first, second in
+           first == route
+        })
+        mapView.show(sorted)
     }
 
     public func mapViewDidFinishLoadingMap(_ mapView: NavigationMapView) {
@@ -394,18 +418,41 @@ extension FlutterMapboxNavigationView : NavigationMapViewDelegate {
 }
 
 extension FlutterMapboxNavigationView : UIGestureRecognizerDelegate {
-
+            
     public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         return true
     }
-
+    
     @objc func handleLongPress(_ gesture: UILongPressGestureRecognizer) {
         guard gesture.state == .ended else { return }
         let location = navigationMapView.mapView.mapboxMap.coordinate(for: gesture.location(in: navigationMapView.mapView))
         requestRoute(destination: location)
     }
+    
+    @objc func handleTap(_ gesture: UITapGestureRecognizer) {
+        guard gesture.state == .ended else {return}
+        let location = navigationMapView.mapView.mapboxMap.coordinate(for: gesture.location(in: navigationMapView.mapView))
+        let waypoint: Encodable = [
+            "latitude" : location.latitude,
+            "longitude" : location.longitude,
+        ]
+        do {
+            let encodedData = try JSONEncoder().encode(waypoint)
+            let jsonString = String(data: encodedData,
+                                    encoding: .utf8)
+            
+            if (jsonString?.isEmpty ?? true) {
+                return
+            }
+            
+            sendEvent(eventType: .on_map_tap,data: jsonString!)
+        } catch {
+            return
+        }
+    }
 
     func requestRoute(destination: CLLocationCoordinate2D) {
+        isEmbeddedNavigation = true
         sendEvent(eventType: MapBoxEventType.route_building)
 
         guard let userLocation = navigationMapView.mapView.location.latestLocation else { return }
@@ -429,6 +476,7 @@ extension FlutterMapboxNavigationView : UIGestureRecognizerDelegate {
                         strongSelf.sendEvent(eventType: MapBoxEventType.route_build_failed)
                         return
                     }
+                    strongSelf.routeResponse = response
                     strongSelf.sendEvent(eventType: MapBoxEventType.route_built, data: strongSelf.encodeRouteResponse(response: response))
                     strongSelf.routeOptions = routeOptions
                     strongSelf._routes = routes

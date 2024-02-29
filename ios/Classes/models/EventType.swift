@@ -1,6 +1,6 @@
 import Foundation
 
-enum MapBoxEventType: Int, Codable
+enum MapBoxEventType: String, Codable
 {
     case map_ready
     case route_building
@@ -18,4 +18,5 @@ enum MapBoxEventType: Int, Codable
     case on_arrival
     case failed_to_reroute
     case reroute_along
+    case on_map_tap
 }

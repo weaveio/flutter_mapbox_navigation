@@ -1,30 +1,44 @@
 import 'dart:convert';
-import 'events.dart';
-import 'route_progress_event.dart';
+import 'dart:io';
+
+import 'package:flutter_mapbox_navigation/flutter_mapbox_navigation.dart';
 
 /// Represents an event sent by the navigation service
 class RouteEvent {
-  MapBoxEvent? eventType;
-  dynamic data;
+  /// Constructor
+  RouteEvent({
+    this.eventType,
+    this.data,
+  });
 
-  RouteEvent({this.eventType, this.data});
-
+  /// Creates [RouteEvent] object from json
   RouteEvent.fromJson(Map<String, dynamic> json) {
-    if (json['eventType'] is int) {
-      eventType = MapBoxEvent.values[json['eventType']];
-    } else {
-      try {
-        eventType = MapBoxEvent.values.firstWhere(
-            (e) => e.toString().split(".").last == json['eventType']);
-      } on StateError {
-        //When the list is empty or eventType not found (Bad State: No Element)
-      } catch (e) {}
+    try {
+      eventType = MapBoxEvent.values
+          .firstWhere((e) => e.toString().split('.').last == json['eventType']);
+    } catch (e) {
+      // TODO handle the error
     }
-    var dataJson = json['data'];
+
+    final dataJson = json['data'];
     if (eventType == MapBoxEvent.progress_change) {
-      data = RouteProgressEvent.fromJson(dataJson);
+      data = RouteProgressEvent.fromJson(dataJson as Map<String, dynamic>);
+    } else if (eventType == MapBoxEvent.navigation_finished &&
+        (dataJson as String).isNotEmpty) {
+      data =
+          MapBoxFeedback.fromJson(jsonDecode(dataJson) as Map<String, dynamic>);
+    } else if (eventType == MapBoxEvent.on_map_tap) {
+      final json =
+          Platform.isAndroid ? dataJson : jsonDecode(dataJson as String);
+      data = WayPoint.fromJson(json as Map<String, dynamic>);
     } else {
       data = jsonEncode(dataJson);
     }
   }
+
+  /// Route event type
+  MapBoxEvent? eventType;
+
+  /// optional data related to route event
+  dynamic data;
 }

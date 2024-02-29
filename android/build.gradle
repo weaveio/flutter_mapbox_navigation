@@ -1,4 +1,4 @@
-group 'com.eopeter.flutter_mapbox_navigation'
+group 'com.eopeter.fluttermapboxnavigation'
 version '1.0-SNAPSHOT'
 
 buildscript {
@@ -83,18 +83,13 @@ android {
     buildFeatures{
         viewBinding = true
     }
-
-    buildTypes {
-        debug {
-            debuggable true
-        }
-    }
 }
 
 dependencies {
     // Mapbox Navigation SDK
-    implementation "com.mapbox.navigation:ui-app:2.13.0"
-    implementation "com.mapbox.navigation:ui-dropin:2.13.0"
+    implementation "com.mapbox.navigation:copilot:2.16.0"
+    implementation "com.mapbox.navigation:ui-app:2.16.0"
+    implementation "com.mapbox.navigation:ui-dropin:2.16.0"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'com.jakewharton.timber:timber:4.7.1'
     implementation 'com.google.code.gson:gson:2.8.9'
